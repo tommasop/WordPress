@@ -33,6 +33,16 @@ define('DB_CHARSET', 'utf8');
 /** The Database Collate type. Don't change this if in doubt. */
 define('DB_COLLATE', '');
 
+/** Try yo update wordpress and its plugins automatically */
+define('FS_METHOD', 'direct'); // 'ssh' is also an option, but did not work for my setup
+define('FTP_BASE', '/var/rapp/WordPress/');
+define('FTP_CONTENT_DIR', '/var/rapp/WordPress/wp-content/');
+define('FTP_PLUGIN_DIR ', '/var/rapp/WordPress/wp-content/plugins/');
+define('FTP_PUBKEY', '/var/rapp/.ssh/id_rsa.pub');
+define('FTP_PRIKEY', '/var/rapp/.ssh/id_rsa');
+define('FTP_USER', 'git');
+define('FTP_HOST', 'thinkingco.de:22');
+
 /**#@+
  * Authentication Unique Keys and Salts.
  *
