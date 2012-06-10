@@ -11,8 +11,11 @@ class WP_Customize_Control {
 	public $manager;
 	public $id;
 
+	// All settings tied to the control.
 	public $settings;
-	public $setting;
+
+	// The primary setting for the control (if there is one).
+	public $setting = 'default';
 
 	public $priority          = 10;
 	public $section           = '';
@@ -331,7 +334,7 @@ class WP_Customize_Image_Control extends WP_Customize_Upload_Control {
 			$src = call_user_func( $this->get_url, $src );
 
 		?>
-		<label class="customize-image-picker">
+		<div class="customize-image-picker">
 			<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 
 			<div class="customize-control-content">
@@ -366,7 +369,7 @@ class WP_Customize_Image_Control extends WP_Customize_Upload_Control {
 			<div class="actions">
 				<a href="#" class="remove"><?php _e( 'Remove Image' ); ?></a>
 			</div>
-		</label>
+		</div>
 		<?php
 	}
 
@@ -382,14 +385,20 @@ class WP_Customize_Image_Control extends WP_Customize_Upload_Control {
 	}
 
 	public function tab_upload_new() {
-		?>
-		<div class="upload-dropzone">
-			<?php _e('Drop a file here or <a href="#" class="upload">select a file</a>.'); ?>
-		</div>
-		<div class="upload-fallback">
-			<span class="button-secondary"><?php _e('Select File'); ?></span>
-		</div>
-		<?php
+		if ( ! _device_can_upload() ) {
+			?>
+			<p><?php _e('The web browser on your device cannot be used to upload files. You may be able to use the <a href="http://wordpress.org/extend/mobile/">native app for your device</a> instead.'); ?></p>
+			<?php
+		} else {
+			?>
+			<div class="upload-dropzone">
+				<?php _e('Drop a file here or <a href="#" class="upload">select a file</a>.'); ?>
+			</div>
+			<div class="upload-fallback">
+				<span class="button-secondary"><?php _e('Select File'); ?></span>
+			</div>
+			<?php
+		}
 	}
 
 	public function tab_uploaded() {
@@ -449,6 +458,10 @@ class WP_Customize_Header_Image_Control extends WP_Customize_Image_Control {
 	public function __construct( $manager ) {
 		parent::__construct( $manager, 'header_image', array(
 			'label'    => __( 'Header Image' ),
+			'settings' => array(
+				'default' => 'header_image',
+				'data'    => 'header_image_data',
+			),
 			'section'  => 'header_image',
 			'context'  => 'custom-header',
 			'removed'  => 'remove-header',
@@ -464,20 +477,40 @@ class WP_Customize_Header_Image_Control extends WP_Customize_Image_Control {
 		$this->add_tab( 'default',  __('Default'),  array( $this, 'tab_default_headers' ) );
 	}
 
+	public function print_header_image( $choice, $header ) {
+		$header['url']           = set_url_scheme( $header['url'] );
+		$header['thumbnail_url'] = set_url_scheme( $header['thumbnail_url'] );
+
+		$header_image_data = array( 'choice' => $choice );
+		foreach ( array( 'attachment_id', 'width', 'height', 'url', 'thumbnail_url' ) as $key ) {
+			if ( isset( $header[ $key ] ) )
+				$header_image_data[ $key ] = $header[ $key ];
+		}
+
+
+		?>
+		<a href="#" class="thumbnail"
+			data-customize-image-value="<?php echo esc_url( $header['url'] ); ?>"
+			data-customize-header-image-data="<?php echo esc_attr( json_encode( $header_image_data ) ); ?>">
+			<img src="<?php echo esc_url( $header['thumbnail_url'] ); ?>" />
+		</a>
+		<?php
+	}
+
 	public function tab_uploaded() {
 		$headers = get_uploaded_header_images();
 
 		?><div class="uploaded-target"></div><?php
 
-		foreach ( $headers as $header )
-			$this->print_tab_image( $header['url'], $header['thumbnail_url'] );
+		foreach ( $headers as $choice => $header )
+			$this->print_header_image( $choice, $header );
 	}
 
 	public function tab_default_headers() {
 		global $custom_image_header;
 		$custom_image_header->process_default_headers();
 
-		foreach ( $custom_image_header->default_headers as $header )
-			$this->print_tab_image( $header['url'], $header['thumbnail_url'] );
+		foreach ( $custom_image_header->default_headers as $choice => $header )
+			$this->print_header_image( $choice, $header );
 	}
 }

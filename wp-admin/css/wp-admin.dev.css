@@ -731,7 +731,6 @@ p.install-help {
 .wp-admin select {
 	padding: 2px;
 	height: 2em;
-	max-width: 100%;
 }
 
 .wp-admin select[multiple] {
@@ -1892,8 +1891,11 @@ strong .post-com-count {
   8.0 - Layout Blocks
 ------------------------------------------------------------------------------*/
 
-body.admin-bar {
+html.wp-toolbar {
 	padding-top: 28px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 .narrow {
@@ -5255,14 +5257,10 @@ body.full-overlay-active {
 	overflow: visible;
 	top: 0;
 	bottom: 0;
-	left: 300px;
+	left: 0;
 	right: 0;
 	height: 100%;
 	min-width: 0;
-}
-
-.wp-full-overlay.collapsed {
-	left: 0 !important;
 }
 
 .wp-full-overlay-sidebar {
@@ -5270,12 +5268,12 @@ body.full-overlay-active {
 	-moz-box-sizing:    border-box;
 	box-sizing:         border-box;
 
-	position: absolute;
+	position: fixed;
 	width: 300px;
 	height: 100%;
 	top: 0;
 	bottom: 0;
-	right: 100%;
+	left: 0;
 	padding: 0;
 	margin: 0;
 	z-index: 10;
@@ -5286,6 +5284,19 @@ body.full-overlay-active {
 
 .wp-full-overlay.collapsed .wp-full-overlay-sidebar {
 	overflow: visible;
+}
+
+.wp-full-overlay.collapsed,
+.wp-full-overlay.expanded .wp-full-overlay-sidebar {
+	margin-left: 0 !important;
+}
+
+.wp-full-overlay.expanded {
+	margin-left: 300px;
+}
+
+.wp-full-overlay.collapsed .wp-full-overlay-sidebar {
+	margin-left: -300px;
 }
 
 .wp-full-overlay-sidebar:after {
@@ -5353,11 +5364,12 @@ body.full-overlay-active {
 .wp-full-overlay .collapse-sidebar {
 	position: absolute;
 	bottom: 12px;
-	right: 15px;
+	left: 0;
 	z-index: 50;
 	display: block;
 	width: 19px;
 	height: 19px;
+	margin-left: 15px;
 	padding: 0;
 	border-radius: 50%;
 	text-decoration: none;
@@ -5365,10 +5377,11 @@ body.full-overlay-active {
 
 .wp-full-overlay.collapsed .collapse-sidebar {
 	position: absolute;
-	right: -35px;
+	left: 100%;
 }
 
 .wp-full-overlay .collapse-sidebar-arrow {
+	position: absolute;
 	margin-top: 2px;
 	margin-left: 2px;
 	display: block;
@@ -5382,12 +5395,11 @@ body.full-overlay-active {
 }
 
 .wp-full-overlay .collapse-sidebar-label {
-	text-align: right;
 	position: absolute;
-	right: 100%;
-	color: #aaa;
+	left: 100%;
+	color: #808080;
 	line-height: 20px;
-	margin-right: 10px;
+	margin-left: 10px;
 }
 
 .wp-full-overlay.collapsed .collapse-sidebar-label {
@@ -5395,7 +5407,7 @@ body.full-overlay-active {
 }
 
 .wp-full-overlay .collapse-sidebar:hover .collapse-sidebar-label {
-	color: #999;
+	color: #666;
 }
 
 /* Animations */
@@ -5403,11 +5415,11 @@ body.full-overlay-active {
 .wp-full-overlay-sidebar,
 .wp-full-overlay .collapse-sidebar,
 .wp-full-overlay-main {
-	-webkit-transition-property: left, right, top, bottom, width;
-	-moz-transition-property:    left, right, top, bottom, width;
-	-ms-transition-property:     left, right, top, bottom, width;
-	-o-transition-property:      left, right, top, bottom, width;
-	transition-property:         left, right, top, bottom, width;
+	-webkit-transition-property: left, right, top, bottom, width, margin;
+	-moz-transition-property:    left, right, top, bottom, width, margin;
+	-ms-transition-property:     left, right, top, bottom, width, margin;
+	-o-transition-property:      left, right, top, bottom, width, margin;
+	transition-property:         left, right, top, bottom, width, margin;
 
 	-webkit-transition-duration: 0.2s;
 	-moz-transition-duration:    0.2s;
@@ -5637,6 +5649,11 @@ table.form-table td .updated {
 
 #poststuff .inside {
 	margin: 6px 0 8px;
+}
+
+#poststuff .inside #parent_id,
+.inline-edit-row #post_parent {
+	max-width: 100%;
 }
 
 #post-visibility-select,

@@ -17,11 +17,8 @@ if ( typeof wp === 'undefined' )
 			// Ensure the loader is supported.
 			// Check for settings, postMessage support, and whether we require CORS support.
 			if ( ! Loader.settings || ! $.support.postMessage || ( ! $.support.cors && Loader.settings.isCrossDomain ) ) {
-				this.body.removeClass( 'customize-support' ).addClass( 'no-customize-support' );
 				return;
 			}
-
-			this.body.removeClass( 'no-customize-support' ).addClass( 'customize-support' );
 
 			this.window  = $( window );
 			this.element = $( '<div id="customize-container" />' ).appendTo( this.body );
@@ -57,7 +54,7 @@ if ( typeof wp === 'undefined' )
 		hashchange: function( e ) {
 			var hash = window.location.toString().split('#')[1];
 
-			if ( hash && 0 === hash.indexOf( 'customize=on' ) )
+			if ( hash && 0 === hash.indexOf( 'wp_customize=on' ) )
 				Loader.open( Loader.settings.url + '?' + hash );
 
 			if ( ! hash && ! $.support.history )
@@ -69,6 +66,10 @@ if ( typeof wp === 'undefined' )
 
 			if ( this.active )
 				return;
+
+			// Load the full page on mobile devices.
+			if ( Loader.settings.browser.mobile )
+				return window.location = src;
 
 			this.active = true;
 			this.body.addClass('customize-loading');
@@ -97,13 +98,18 @@ if ( typeof wp === 'undefined' )
 					Loader.close();
 			});
 
+			this.messenger.bind( 'activated', function( location ) {
+				if ( location )
+					window.location = location;
+			});
+
 			hash = src.split('?')[1];
 
 			// Ensure we don't call pushState if the user hit the forward button.
 			if ( $.support.history && window.location.href !== src )
 				history.pushState( { customize: src }, '', src );
 			else if ( ! $.support.history && $.support.hashchange && hash )
-				window.location.hash = 'customize=on&' + hash;
+				window.location.hash = 'wp_customize=on&' + hash;
 
 			this.trigger( 'open' );
 		},

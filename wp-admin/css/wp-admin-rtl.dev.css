@@ -1566,19 +1566,10 @@ table .column-rating {
 /*------------------------------------------------------------------------------
   26.0 - Full Overlay w/ Sidebar
 ------------------------------------------------------------------------------*/
-.wp-full-overlay {
-	left: 0;
-	right: 300px;
-}
-
-.wp-full-overlay.collapsed {
-	right: 0 !important;
-}
-
 .wp-full-overlay .wp-full-overlay-sidebar {
 	margin: 0;
-	left: 100%;
-	right: auto;
+	left: auto;
+	right: 0;
 	border-right: 0;
 	border-left: 1px solid rgba( 0, 0, 0, 0.2 );
 }
@@ -1589,20 +1580,35 @@ table .column-rating {
 	box-shadow: inset 5px 0 4px -4px rgba(0, 0, 0, 0.1);
 }
 
+.wp-full-overlay.collapsed,
+.wp-full-overlay.expanded .wp-full-overlay-sidebar {
+	margin-right: 0 !important;
+}
+
+.wp-full-overlay.expanded {
+	margin-right: 300px;
+	margin-left: 0;
+}
+
+.wp-full-overlay.collapsed .wp-full-overlay-sidebar {
+	margin-right: -300px;
+	margin-left: 0;
+}
+
 /* Collapse Button */
 .wp-full-overlay .collapse-sidebar {
-	right: auto;
-	left: 15px;
+	right: 0;
+	left: auto;
+	margin-right: 15px;
 }
 
 .wp-full-overlay.collapsed .collapse-sidebar {
-	right: auto;
-	left: -45px;
+	right: 100%;
 }
 
 .wp-full-overlay .collapse-sidebar-arrow {
-	margin-left: 0;
 	margin-right: 2px;
+	margin-left: 0;
 	background: transparent url('../../wp-admin/images/arrows.png') no-repeat 0 -108px;
 }
 
@@ -1611,11 +1617,10 @@ table .column-rating {
 }
 
 .wp-full-overlay .collapse-sidebar-label {
-	text-align: left;
-	right: auto;
-	left: 100%;
-	margin-right: 0;
-	margin-left: 10px;
+	right: 100%;
+	left: auto;
+	margin-right: 10px;
+	margin-left: 0;
 }
 
 /*------------------------------------------------------------------------------
