@@ -17,6 +17,8 @@ final class WP_Customize_Manager {
 	protected $sections = array();
 	protected $controls = array();
 
+	protected $nonce_tick;
+
 	protected $customized;
 
 	private $_post_values;
@@ -72,9 +74,12 @@ final class WP_Customize_Manager {
 	 *
 	 * @since 3.4.0
 	 */
-	private function wp_die( $ajax_message, $message ) {
+	protected function wp_die( $ajax_message, $message = null ) {
 		if ( $this->doing_ajax() )
 			wp_die( $ajax_message );
+
+		if ( ! $message )
+			$message = __( 'Cheatin&#8217; uh?' );
 
 		wp_die( $message );
 	}
@@ -98,29 +103,45 @@ final class WP_Customize_Manager {
 	 * @since 3.4.0
 	 */
 	public function setup_theme() {
+		send_origin_headers();
+
 		if ( is_admin() && ! $this->doing_ajax() )
 		    auth_redirect();
-		elseif ( $this->doing_ajax() && ! is_user_logged_in())
-		    wp_die( 0 );
+		elseif ( $this->doing_ajax() && ! is_user_logged_in() )
+		    $this->wp_die( 0 );
 
-		send_origin_headers();
+		show_admin_bar( false );
+
+		if ( ! current_user_can( 'edit_theme_options' ) )
+			$this->wp_die( -1 );
 
 		$this->original_stylesheet = get_stylesheet();
 
 		$this->theme = wp_get_theme( isset( $_REQUEST['theme'] ) ? $_REQUEST['theme'] : null );
 
-		// You can't preview a theme if it doesn't exist, or if it is not allowed (unless active).
-		if ( ! $this->theme->exists() )
-			$this->wp_die( -1, __( 'Cheatin&#8217; uh?' ) );
+		if ( $this->is_theme_active() ) {
+			// Once the theme is loaded, we'll validate it.
+			add_action( 'after_setup_theme', array( $this, 'after_setup_theme' ) );
+		} else {
+			if ( ! current_user_can( 'switch_themes' ) )
+				$this->wp_die( -1 );
 
-		if ( $this->theme->get_stylesheet() != get_stylesheet() && ( ! $this->theme()->is_allowed() || ! current_user_can( 'switch_themes' ) ) )
-			$this->wp_die( -1, __( 'Cheatin&#8217; uh?' ) );
+			// If the theme isn't active, you can't preview it if it is not allowed or has errors.
+			if ( $this->theme()->errors() )
+				$this->wp_die( -1 );
 
-		if ( ! current_user_can( 'edit_theme_options' ) )
-			$this->wp_die( -1, __( 'Cheatin&#8217; uh?' ) );
+			if ( ! $this->theme()->is_allowed() )
+				$this->wp_die( -1 );
+		}
 
 		$this->start_previewing_theme();
-		show_admin_bar( false );
+	}
+
+	function after_setup_theme() {
+		if ( ! $this->doing_ajax() && ! validate_current_theme() ) {
+			wp_redirect( 'themes.php?broken=true' );
+			exit;
+		}
 	}
 
 	/**
@@ -137,17 +158,19 @@ final class WP_Customize_Manager {
 
 		$this->previewing = true;
 
-		add_filter( 'template', array( $this, 'get_template' ) );
-		add_filter( 'stylesheet', array( $this, 'get_stylesheet' ) );
-		add_filter( 'pre_option_current_theme', array( $this, 'current_theme' ) );
+		if ( ! $this->is_theme_active() ) {
+			add_filter( 'template', array( $this, 'get_template' ) );
+			add_filter( 'stylesheet', array( $this, 'get_stylesheet' ) );
+			add_filter( 'pre_option_current_theme', array( $this, 'current_theme' ) );
 
-		// @link: http://core.trac.wordpress.org/ticket/20027
-		add_filter( 'pre_option_stylesheet', array( $this, 'get_stylesheet' ) );
-		add_filter( 'pre_option_template', array( $this, 'get_template' ) );
+			// @link: http://core.trac.wordpress.org/ticket/20027
+			add_filter( 'pre_option_stylesheet', array( $this, 'get_stylesheet' ) );
+			add_filter( 'pre_option_template', array( $this, 'get_template' ) );
 
-		// Handle custom theme roots.
-		add_filter( 'pre_option_stylesheet_root', array( $this, 'get_stylesheet_root' ) );
-		add_filter( 'pre_option_template_root', array( $this, 'get_template_root' ) );
+			// Handle custom theme roots.
+			add_filter( 'pre_option_stylesheet_root', array( $this, 'get_stylesheet_root' ) );
+			add_filter( 'pre_option_template_root', array( $this, 'get_template_root' ) );
+		}
 
 		do_action( 'start_previewing_theme', $this );
 	}
@@ -165,17 +188,19 @@ final class WP_Customize_Manager {
 
 		$this->previewing = false;
 
-		remove_filter( 'template', array( $this, 'get_template' ) );
-		remove_filter( 'stylesheet', array( $this, 'get_stylesheet' ) );
-		remove_filter( 'pre_option_current_theme', array( $this, 'current_theme' ) );
+		if ( ! $this->is_theme_active() ) {
+			remove_filter( 'template', array( $this, 'get_template' ) );
+			remove_filter( 'stylesheet', array( $this, 'get_stylesheet' ) );
+			remove_filter( 'pre_option_current_theme', array( $this, 'current_theme' ) );
 
-		// @link: http://core.trac.wordpress.org/ticket/20027
-		remove_filter( 'pre_option_stylesheet', array( $this, 'get_stylesheet' ) );
-		remove_filter( 'pre_option_template', array( $this, 'get_template' ) );
+			// @link: http://core.trac.wordpress.org/ticket/20027
+			remove_filter( 'pre_option_stylesheet', array( $this, 'get_stylesheet' ) );
+			remove_filter( 'pre_option_template', array( $this, 'get_template' ) );
 
-		// Handle custom theme roots.
-		remove_filter( 'pre_option_stylesheet_root', array( $this, 'get_stylesheet_root' ) );
-		remove_filter( 'pre_option_template_root', array( $this, 'get_template_root' ) );
+			// Handle custom theme roots.
+			remove_filter( 'pre_option_stylesheet_root', array( $this, 'get_stylesheet_root' ) );
+			remove_filter( 'pre_option_template_root', array( $this, 'get_template_root' ) );
+		}
 
 		do_action( 'stop_previewing_theme', $this );
 	}
@@ -285,6 +310,8 @@ final class WP_Customize_Manager {
 	 * @since 3.4.0
 	 */
 	public function customize_preview_init() {
+		$this->nonce_tick = check_ajax_referer( 'preview-customize_' . $this->get_stylesheet(), 'nonce' );
+
 		$this->prepare_controls();
 
 		wp_enqueue_script( 'customize-preview' );
@@ -337,8 +364,14 @@ final class WP_Customize_Manager {
 		$settings = array(
 			'values'  => array(),
 			'channel' => esc_js( $_POST['customize_messenger_channel'] ),
-			'backgroundImageHasDefault' => current_theme_supports( 'custom-background', 'default-image' ),
 		);
+
+		if ( 2 == $this->nonce_tick ) {
+ 			$settings['nonce'] = array(
+ 				'save' => wp_create_nonce( 'save-customize_' . $this->get_stylesheet() ),
+ 				'preview' => wp_create_nonce( 'preview-customize_' . $this->get_stylesheet() )
+ 			);
+ 		}
 
 		foreach ( $this->settings as $id => $setting ) {
 			$settings['values'][ $id ] = $setting->js_value();
@@ -390,7 +423,7 @@ final class WP_Customize_Manager {
 	 * @return string Template name.
 	 */
 	public function get_template() {
-		return $this->theme->get_template();
+		return $this->theme()->get_template();
 	}
 
 	/**
@@ -401,7 +434,7 @@ final class WP_Customize_Manager {
 	 * @return string Stylesheet name.
 	 */
 	public function get_stylesheet() {
-		return $this->theme->get_stylesheet();
+		return $this->theme()->get_stylesheet();
 	}
 
 	/**
@@ -434,7 +467,7 @@ final class WP_Customize_Manager {
 	 * @return string Theme name.
 	 */
 	public function current_theme( $current_theme ) {
-		return $this->theme->display('Name');
+		return $this->theme()->display('Name');
 	}
 
 	/**
@@ -446,10 +479,10 @@ final class WP_Customize_Manager {
 		if ( ! $this->is_preview() )
 			die;
 
-		check_ajax_referer( 'customize_controls-' . $this->get_stylesheet(), 'nonce' );
+		check_ajax_referer( 'save-customize_' . $this->get_stylesheet(), 'nonce' );
 
 		// Do we have to switch themes?
-		if ( $this->get_stylesheet() != $this->original_stylesheet ) {
+		if ( ! $this->is_theme_active() ) {
 			// Temporarily stop previewing the theme to allow switch_themes()
 			// to operate properly.
 			$this->stop_previewing_theme();
@@ -463,20 +496,7 @@ final class WP_Customize_Manager {
 			$setting->save();
 		}
 
-		add_action( 'admin_notices', array( $this, '_save_feedback' ) );
-
 		die;
-	}
-
-	/**
-	 * Show an admin notice after settings are saved.
-	 *
-	 * @since 3.4.0
-	 */
-	public function _save_feedback() {
-		?>
-		<div class="updated"><p><?php printf( __( 'Settings saved and theme activated. <a href="%s">Visit site</a>.' ), home_url( '/' ) ); ?></p></div>
-		<?php
 	}
 
 	/**
@@ -780,6 +800,10 @@ final class WP_Customize_Manager {
 			'default'        => get_theme_support( 'custom-background', 'default-image' ),
 			'theme_supports' => 'custom-background',
 		) );
+
+		$this->add_setting( new WP_Customize_Background_Image_Setting( $this, 'background_image_thumb', array(
+			'theme_supports' => 'custom-background',
+		) ) );
 
 		$this->add_control( new WP_Customize_Background_Image_Control( $this ) );
 

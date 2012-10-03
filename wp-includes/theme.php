@@ -98,7 +98,7 @@ function wp_get_theme( $stylesheet = null, $theme_root = null ) {
 	if ( empty( $theme_root ) ) {
 		$theme_root = get_raw_theme_root( $stylesheet );
 		if ( false === $theme_root )
-			$theme_root = WP_CONTENT_DIR . $theme_root;
+			$theme_root = WP_CONTENT_DIR . '/themes';
 		elseif ( ! in_array( $theme_root, (array) $wp_theme_directories ) )
 			$theme_root = WP_CONTENT_DIR . $theme_root;
 	}
@@ -381,7 +381,7 @@ function search_theme_directories( $force = false ) {
 				if ( ! $sub_dirs )
 					return false;
 				foreach ( $sub_dirs as $sub_dir ) {
-					if ( ! is_dir( $theme_root . '/' . $dir ) || $dir[0] == '.' || $dir == 'CVS' )
+					if ( ! is_dir( $theme_root . '/' . $dir . '/' . $sub_dir ) || $dir[0] == '.' || $dir == 'CVS' )
 						continue;
 					if ( ! file_exists( $theme_root . '/' . $dir . '/' . $sub_dir . '/style.css' ) )
 						continue;
@@ -1109,7 +1109,7 @@ function _custom_background_cb() {
 	// A default has to be specified in style.css. It will not be printed here.
 	$color = get_theme_mod( 'background_color' );
 
-	if ( ! $background && ! $color && ! get_theme_support( 'custom-background', 'default-image' ) )
+	if ( ! $background && ! $color )
 		return;
 
 	$style = $color ? "background-color: #$color;" : '';
@@ -1133,10 +1133,6 @@ function _custom_background_cb() {
 		$attachment = " background-attachment: $attachment;";
 
 		$style .= $image . $repeat . $position . $attachment;
-	} elseif ( get_theme_support( 'custom-background', 'default-image' ) ) {
-		// If there is not a $background, but there is a default, then the default was
-		// removed and an empty value was saved. Remove it:
-		$style .= " background-image: none;";
 	}
 ?>
 <style type="text/css" id="custom-background-css">
@@ -1633,11 +1629,12 @@ add_action( 'admin_enqueue_scripts', '_wp_customize_loader_settings' );
  * @since 3.4.0
  *
  * @param string $stylesheet Optional. Theme to customize. Defaults to current theme.
+ * 	The theme's stylesheet will be urlencoded if necessary.
  */
 function wp_customize_url( $stylesheet = null ) {
 	$url = admin_url( 'customize.php' );
 	if ( $stylesheet )
-		$url .= '?theme=' . $stylesheet;
+		$url .= '?theme=' . urlencode( $stylesheet );
 	return esc_url( $url );
 }
 

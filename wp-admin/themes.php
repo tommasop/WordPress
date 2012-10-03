@@ -20,7 +20,7 @@ if ( current_user_can( 'switch_themes' ) && isset($_GET['action'] ) ) {
 		$theme = wp_get_theme( $_GET['stylesheet'] );
 		if ( ! $theme->exists() || ! $theme->is_allowed() )
 			wp_die( __( 'Cheatin&#8217; uh?' ) );
-		switch_theme($_GET['template'], $_GET['stylesheet']);
+		switch_theme( $theme->get_template(), $theme->get_stylesheet() );
 		wp_redirect( admin_url('themes.php?activated=true') );
 		exit;
 	} elseif ( 'delete' == $_GET['action'] ) {
@@ -64,6 +64,8 @@ if ( current_user_can( 'install_themes' ) ) {
 	) );
 }
 
+add_thickbox();
+
 endif; // switch_themes
 
 if ( current_user_can( 'edit_theme_options' ) ) {
@@ -92,18 +94,6 @@ wp_enqueue_script( 'customize-loader' );
 require_once('./admin-header.php');
 ?>
 
-<?php if ( ! validate_current_theme() ) : ?>
-<div id="message1" class="updated"><p><?php _e('The active theme is broken. Reverting to the default theme.'); ?></p></div>
-<?php elseif ( isset($_GET['activated']) ) :
-		if ( isset($wp_registered_sidebars) && count( (array) $wp_registered_sidebars ) && current_user_can('edit_theme_options') ) { ?>
-<div id="message2" class="updated"><p><?php printf( __('New theme activated. This theme supports widgets, please visit the <a href="%s">widgets settings</a> screen to configure them.'), admin_url( 'widgets.php' ) ); ?></p></div><?php
-		} else { ?>
-<div id="message2" class="updated"><p><?php printf( __( 'New theme activated. <a href="%s">Visit site</a>' ), home_url( '/' ) ); ?></p></div><?php
-		}
-	elseif ( isset($_GET['deleted']) ) : ?>
-<div id="message3" class="updated"><p><?php _e('Theme deleted.') ?></p></div>
-<?php endif; ?>
-
 <div class="wrap"><?php
 screen_icon();
 if ( ! is_multisite() && current_user_can( 'install_themes' ) ) : ?>
@@ -114,6 +104,20 @@ if ( ! is_multisite() && current_user_can( 'install_themes' ) ) : ?>
 <?php endif; ?>
 </h2>
 <?php
+if ( ! validate_current_theme() || isset( $_GET['broken'] ) ) : ?>
+<div id="message1" class="updated"><p><?php _e('The active theme is broken. Reverting to the default theme.'); ?></p></div>
+<?php elseif ( isset($_GET['activated']) ) :
+		if ( isset( $_GET['previewed'] ) ) { ?>
+		<div id="message2" class="updated"><p><?php printf( __( 'Settings saved and theme activated. <a href="%s">Visit site</a>.' ), home_url( '/' ) ); ?></p></div>
+		<?php } elseif ( isset($wp_registered_sidebars) && count( (array) $wp_registered_sidebars ) && current_user_can('edit_theme_options') ) { ?>
+<div id="message2" class="updated"><p><?php printf( __('New theme activated. This theme supports widgets, please visit the <a href="%s">widgets settings</a> screen to configure them.'), admin_url( 'widgets.php' ) ); ?></p></div><?php
+		} else { ?>
+<div id="message2" class="updated"><p><?php printf( __( 'New theme activated. <a href="%s">Visit site</a>' ), home_url( '/' ) ); ?></p></div><?php
+		}
+	elseif ( isset($_GET['deleted']) ) : ?>
+<div id="message3" class="updated"><p><?php _e('Theme deleted.') ?></p></div>
+<?php
+endif;
 
 $ct = wp_get_theme();
 $screenshot = $ct->get_screenshot();
