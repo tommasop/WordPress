@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://thinkingco.de/wp-content/plugins/google-sitemap-generator/sitemap.xsl"?><!-- generator="wordpress/3.4.2" -->
+<!-- sitemap-generator-url="http://www.arnebrachhold.de" sitemap-generator-version="3.2.8" -->
+<!-- generated-on="2012/10/03 12:08 pm" -->
+<!-- Debug: Total comment count: 0 -->
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">	<url>
+		<loc>http://thinkingco.de/</loc>
+		<lastmod>2012-10-03T12:07:32+00:00</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>1.0</priority>
+	</url>
+<!-- Debug: Start Postings -->
+<!-- Debug: Priority report of postID 158: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/tech/whos-calling-i-mean-ruby-method</loc>
+		<lastmod>2012-10-03T12:07:32+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+<!-- Debug: Priority report of postID 54: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/economics/the-extreme-need-of-money-refactoring</loc>
+		<lastmod>2012-10-03T08:43:48+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+<!-- Debug: Priority report of postID 56: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/tech/realtime-dashboard-ruby-eventmachine-and-d3-js</loc>
+		<lastmod>2012-09-17T10:40:00+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+<!-- Debug: Priority report of postID 143: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/tech/eventmachine-serialport</loc>
+		<lastmod>2012-09-17T10:21:43+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+<!-- Debug: Priority report of postID 149: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/tech/start-vsphere-machine-from-osx</loc>
+		<lastmod>2012-09-13T17:46:39+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+<!-- Debug: Priority report of postID 102: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/tech/rails-3-is_documentable-with-activeadmin</loc>
+		<lastmod>2012-08-31T19:14:41+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+	<url>
+		<loc>http://thinkingco.de/tommaso-patrizi</loc>
+		<lastmod>2012-06-11T23:40:02+00:00</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.6</priority>
+	</url>
+<!-- Debug: Priority report of postID 31: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/tech/my-website-stack-wnws</loc>
+		<lastmod>2012-06-08T09:39:31+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+	<url>
+		<loc>http://thinkingco.de/my-job</loc>
+		<lastmod>2012-06-08T08:07:57+00:00</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.6</priority>
+	</url>
+<!-- Debug: Priority report of postID 1: Comments: 0 of 0 = 0 points -->
+	<url>
+		<loc>http://thinkingco.de/2012/about/thinking-code</loc>
+		<lastmod>2012-06-06T21:01:52+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+<!-- Debug: End Postings -->
+<!-- Debug: Start Custom Pages -->
+<!-- Debug: End Custom Pages -->
+<!-- Debug: Start additional URLs -->
+<!-- Debug: End additional URLs -->
+</urlset>
